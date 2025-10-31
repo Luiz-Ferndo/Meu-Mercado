@@ -1,13 +1,27 @@
 import 'package:flutter/material.dart';
 
-class ItemCompra extends StatelessWidget {
+class ItemCompra extends StatefulWidget {
   const ItemCompra({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    List<String> lista = <String>['Status...', 'Comprar', 'Comprado'];
-    String dropdownValue = lista.first;
+  State<ItemCompra> createState() => _ItemCompraState();
+}
 
+class _ItemCompraState extends State<ItemCompra> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final List<String> _statusItems = <String>['Status...', 'Comprar', 'Comprado'];
+  String _dropdownValue = 'Status...';
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _priceController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold (
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -25,6 +39,7 @@ class ItemCompra extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               TextField(
+                controller: _nameController,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -36,6 +51,8 @@ class ItemCompra extends StatelessWidget {
                 ),
               ),
               TextField(
+                controller: _priceController,
+                keyboardType: TextInputType.number,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -46,21 +63,27 @@ class ItemCompra extends StatelessWidget {
                   labelText: 'R\$ Valor do item',
                 ),
               ),
-              DropdownButton(
-                value: dropdownValue,
-                items: 
-                  lista.map<DropdownMenuItem<String>>((value) {
+              DropdownButton<String>(
+                value: _dropdownValue,
+                items: _statusItems.map<DropdownMenuItem<String>>((value) {
                   return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (_) {},
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (v) {
+                  if (v == null) return;
+                  setState(() => _dropdownValue = v);
+                },
               ),
               ElevatedButton(
                 onPressed: () {
-                  print('Item salvo com sucesso!');
-                  Navigator.pop(context);
+                  final name = _nameController.text.trim();
+                  if (name.isEmpty) {
+                    Navigator.pop(context);
+                    return;
+                  }
+                  Navigator.pop(context, name);
                 },
                 child: Text('salvar'),
               )

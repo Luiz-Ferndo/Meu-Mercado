@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 
-class ListaDeCompras extends StatelessWidget {
-  const ListaDeCompras({super.key, required String title});
+class ListaDeCompras extends StatefulWidget {
+  const ListaDeCompras({super.key, required this.title});
 
-  final listas = const [
-    "Supermercado",
-    "Farmácia",
+  final String title;
+
+  @override
+  State<ListaDeCompras> createState() => _ListaDeComprasState();
+}
+
+class _ListaDeComprasState extends State<ListaDeCompras> {
+  final List<String> _listas = [
+    'Supermercado',
+    'Farmácia',
   ];
+
+  void _removeAt(int index) {
+    setState(() {
+      _listas.removeAt(index);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +43,7 @@ class ListaDeCompras extends StatelessWidget {
       ),
 
       body: ListView.builder(        
-        itemCount: listas.length,
+        itemCount: _listas.length,
         itemBuilder: (context, index) {
           return Card(
             child: Padding(
@@ -40,7 +53,7 @@ class ListaDeCompras extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    listas[index],
+                    _listas[index],
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8),
@@ -52,9 +65,7 @@ class ListaDeCompras extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: IconButton(
                       icon: Icon(Icons.delete, size: 20, color: Colors.red),
-                      onPressed: () {
-                        // Funcionalidade para excluir a lista
-                      },
+                      onPressed: () => _removeAt(index),
                     ),
                   ),
                 ],
@@ -65,10 +76,14 @@ class ListaDeCompras extends StatelessWidget {
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print('Adicionar novo item');
-
-          Navigator.pushNamed(context, '/item');
+        onPressed: () async {
+          // navega para a rota /item e aguarda um possível resultado
+          final result = await Navigator.pushNamed(context, '/item');
+          if (result != null && result is String) {
+            setState(() {
+              _listas.add(result);
+            });
+          }
         },
         tooltip: 'Adicionar Item',
         child: const Icon(Icons.add),
